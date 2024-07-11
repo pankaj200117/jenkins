@@ -1,0 +1,56 @@
+pipeline {
+    agent any  // Runs on any available agent (can be defined to run on specific nodes/agents)
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout source code from a Git repository
+                git branch: 'main', url: 'https://github.com/pankaj200117/repository.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                // Build the Docker image using Dockerfile
+                script {
+                    docker.build('my-image')  // Replace 'my-image' with your desired image name
+                }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                // Run tests (replace with your test commands)
+                script {
+                    docker.image('my-image').inside {
+                        sh 'npm install'  // Example: install dependencies
+                        sh 'npm test'     // Example: run tests
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                // Deploy using docker-compose
+                script {
+                    sh 'docker-compose up -d'  // Replace with your deployment commands
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            // Actions to perform if the pipeline succeeds
+            echo 'Pipeline succeeded!'
+            // Additional actions such as sending notifications, archiving artifacts, etc.
+        }
+        failure {
+            // Actions to perform if the pipeline fails
+            echo 'Pipeline failed!'
+            // Additional actions such as sending notifications, cleaning up, etc.
+        }
+    }
+}
+
