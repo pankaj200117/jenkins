@@ -1,28 +1,34 @@
 pipeline {
     agent any
-    
-    stages{
-        stage("Code"){
-            steps{
-                git url: "https://https://github.com/pankaj200117/jenkins.git", branch: "main"
+
+    stages {
+        stage("Code Checkout") {
+            steps {
+                // Corrected Git URL
+                git url: "https://github.com/pankaj200117/jenkins.git", branch: "main"
             }
         }
-        stage("Build & Test"){
-            steps{
+        stage("Build & Test") {
+            steps {
                 sh "docker build . -t flaskapp"
             }
         }
-        stage("Push to DockerHub"){
-            steps{
-                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
-                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                    sh "docker tag flaskapp ${env.dockerHubUser}/flaskapp:latest"
-                    sh "docker push ${env.dockerHubUser}/flaskapp:latest" 
+        stage("Push to DockerHub") {
+            environment {
+                // Define your DockerHub credentials ID here
+                dockerHub = credentials('dockerHub')
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', dockerHub) {
+                        sh "docker tag flaskapp ${dockerHub.username}/flaskapp:latest"
+                        sh "docker push ${dockerHub.username}/flaskapp:latest"
+                    }
                 }
             }
         }
-        stage("Deploy"){
-            steps{
+        stage("Deploy") {
+            steps {
                 sh "docker-compose down && docker-compose up -d"
             }
         }
