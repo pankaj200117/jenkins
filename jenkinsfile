@@ -21,8 +21,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', dockerHub) {
-                        sh "docker tag flaskapp ${dockerHub.username}/flaskapp:latest"
-                        sh "docker push ${dockerHub.username}/flaskapp:latest"
+                        sh "docker tag flaskapp ${dockerHub.pankajthakur172001820}/flaskapp:latest"
+                        sh "docker push ${dockerHub.pankajthakur172001820}/flaskapp:latest"
                     }
                 }
             }
