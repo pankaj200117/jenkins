@@ -16,22 +16,23 @@ pipeline {
         stage("Push to DockerHub") {
             environment {
                 // Define your DockerHub credentials ID here
-                dockerHub = credentials('dockerHub')
+                dockerHub = credentials('dockerHub') // Ensure this ID exists in Jenkins credentials store
             }
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', dockerHub) {
-                        sh "docker tag flaskapp ${dockerHub.pankajthakur172001820}/flaskapp:latest"
-                        sh "docker push ${dockerHub.pankajthakur172001820}/flaskapp:latest"
+                        // Ensure correct DockerHub username in the tag
+                        sh "docker tag flaskapp ${dockerHub.username}/flaskapp:latest"
+                        sh "docker push ${dockerHub.username}/flaskapp:latest"
                     }
                 }
             }
         }
         stage("Deploy") {
             steps {
+                // Make sure docker-compose.yml exists in the directory
                 sh "docker-compose down && docker-compose up -d"
             }
         }
     }
 }
-
